@@ -2,12 +2,11 @@ package se.umu.chho0126.thirty.controller
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.util.Log
 import android.widget.Button
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.lifecycle.ViewModelProviders
-import se.umu.chho0126.thirty.R
+import se.umu.chho0126.thirty.databinding.ActivityMainBinding
 import se.umu.chho0126.thirty.model.Dice
 import se.umu.chho0126.thirty.model.Game
 import se.umu.chho0126.thirty.viewModels.DiceViewModel
@@ -17,86 +16,67 @@ class MainActivity : AppCompatActivity() {
     private lateinit var throwButton: Button
     private lateinit var calculateButton: Button
     private lateinit var resultTest: TextView
-    private lateinit var diceViews: List<DiceView>
+    private lateinit var diceImages: List<ImageView>
+
+    private lateinit var binding: ActivityMainBinding
 
     private var game: Game = Game()
 
-    /*
     private val diceViewModel: DiceViewModel by lazy {
         ViewModelProviders.of(this).get(DiceViewModel::class.java)
     }
-    */
-
-    data class DiceView(var view: ImageView, var dice: Dice = Dice())
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
-        throwButton = findViewById(R.id.throw_button)
-        calculateButton = findViewById(R.id.calculate_button)
-        resultTest = findViewById(R.id.result_test)
+        binding = ActivityMainBinding.inflate(layoutInflater)
+        val view = binding.root
+        setContentView(view)
 
-        diceViews = listOf(
-            DiceView(findViewById(R.id.dice_one)),
-            DiceView(findViewById(R.id.dice_two)),
-            DiceView(findViewById(R.id.dice_three)),
-            DiceView(findViewById(R.id.dice_four)),
-            DiceView(findViewById(R.id.dice_five)),
-            DiceView(findViewById(R.id.dice_six))
+        throwButton = binding.throwButton
+        calculateButton = binding.calculateButton
+        resultTest = binding.resultTest
+        diceImages = listOf(
+            binding.diceOne,
+            binding.diceTwo,
+            binding.diceThree,
+            binding.diceFour,
+            binding.diceFive,
+            binding.diceSix,
         )
 
-        diceViews[0].dice.toggleSelection()
-
-        diceViews.forEach {
-            updateDiceView(it)
-        }
+        setupDiceImages()
 
         throwButton.setOnClickListener {
-            throwAllDices()
-        }
-
-        calculateButton.setOnClickListener {
-            val dices: List<Dice> = getDices()
-            val score: Int = game.determineScore(dices)
-            resultTest.text = "$score"
+            diceViewModel.throwAllDices()
+            updateAllViews()
+            calculateScore()
         }
 
     }
 
-    private fun throwDice(diceView: DiceView) {
-        diceView.dice.throwDice()
-        updateDiceView(diceView)
+    private fun calculateScore() {
+        val dices: List<Dice> = diceViewModel.dices
+        val score: Int = game.determineScore(dices)
+        resultTest.text = "$score"
     }
 
-    private fun throwAllDices() {
-        diceViews.forEach {
-            throwDice(it)
-        }
-    }
-
-    private fun getDices(): List<Dice> {
-        return diceViews.map { it.dice }
-    }
-
-    private fun updateDiceView(diceView: DiceView) {
-        if (diceView.dice.isSelected) {
-            when (diceView.dice.value) {
-                1 -> diceView.view.setImageResource(R.drawable.grey1)
-                2 -> diceView.view.setImageResource(R.drawable.grey2)
-                3 -> diceView.view.setImageResource(R.drawable.grey3)
-                4 -> diceView.view.setImageResource(R.drawable.grey4)
-                5 -> diceView.view.setImageResource(R.drawable.grey5)
-                6 -> diceView.view.setImageResource(R.drawable.grey6)
-            }
-        } else {
-            when (diceView.dice.value) {
-                1 -> diceView.view.setImageResource(R.drawable.white1)
-                2 -> diceView.view.setImageResource(R.drawable.white2)
-                3 -> diceView.view.setImageResource(R.drawable.white3)
-                4 -> diceView.view.setImageResource(R.drawable.white4)
-                5 -> diceView.view.setImageResource(R.drawable.white5)
-                6 -> diceView.view.setImageResource(R.drawable.white6)
+    private fun setupDiceImages() {
+        for (i in diceImages.indices) {
+            diceImages[i].setOnClickListener {
+                diceViewModel.dices[i].toggleSelection()
+                updateView(diceImages[i], diceViewModel.dices[i].view)
             }
         }
     }
+
+    private fun updateAllViews() {
+        for (i in diceImages.indices) {
+            diceImages[i].setImageResource(diceViewModel.dices[i].view)
+        }
+    }
+
+    private fun updateView(imageView: ImageView, resourceId: Int) {
+        imageView.setImageResource(resourceId)
+    }
+
 }
