@@ -44,6 +44,9 @@ class MainActivity : AppCompatActivity() {
             binding.diceSix,
         )
 
+        resultTest.text = "${diceViewModel.score}"
+
+        updateAllViews()
         setupDiceImages()
 
         throwButton.setOnClickListener {
@@ -57,7 +60,8 @@ class MainActivity : AppCompatActivity() {
     private fun calculateScore() {
         val dices: List<Dice> = diceViewModel.dices
         val score: Int = game.determineScore(dices)
-        resultTest.text = "$score"
+        diceViewModel.score += score // undersök om detta ska in i game klassen
+        resultTest.text = "${diceViewModel.score}"
     }
 
     private fun setupDiceImages() {
@@ -78,5 +82,4 @@ class MainActivity : AppCompatActivity() {
     private fun updateView(imageView: ImageView, resourceId: Int) {
         imageView.setImageResource(resourceId)
     }
-
 }

@@ -21,6 +21,7 @@ class Dice(var value: Int = IntRange(1,6).random()) {
 
     fun toggleSelection() {
         isSelected = !isSelected
+        view = updateDiceView()
     }
 
     private fun updateDiceView(): Int {
