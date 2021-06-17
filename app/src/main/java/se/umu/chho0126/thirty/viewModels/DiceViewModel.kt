@@ -5,32 +5,47 @@ import android.widget.ImageView
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProviders
 import se.umu.chho0126.thirty.R
+import se.umu.chho0126.thirty.Util
 import se.umu.chho0126.thirty.controller.MainActivity
 import se.umu.chho0126.thirty.model.Dice
+import se.umu.chho0126.thirty.model.Game
 
 private const val TAG = "DiceViewModel"
 
 class DiceViewModel : ViewModel() {
-
-    var dices: List<Dice> = List(6) { Dice() }
-    var score: Int = 0
+    var game: Game = Game()
+    var dices: List<Dice> = game.getDices()
 
     fun throwAllDices() {
+        game.throwDices()
+    }
+
+    fun createNewRound() {
+        endGameRound()
+        newGameRound()
+    }
+
+    fun newGame() {
+        game = Game()
+        dices = game.getDices()
+        print()
+    }
+
+    private fun endGameRound() {
+        game.endRound()
+    }
+
+    private fun newGameRound() {
+        game.newRound()
+        dices = game.getDices()
+    }
+
+    private fun print() {
         dices.forEach {
-            if (!it.isSelected) {
-                it.throwDice()
-            } else {
-                toggleSelection(it)
-            }
+            Util.debugLog(it.value.toString())
         }
-    }
 
-    fun toggleSelection(dice: Dice) {
-        dice.toggleSelection()
-        Log.d(TAG, "------------")
-        dices.forEach { Log.d(TAG, "${it.value}") }
     }
-
     init {
         Log.d(TAG, "diceviewmodel initialized")
     }
