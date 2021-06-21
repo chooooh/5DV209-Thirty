@@ -1,16 +1,43 @@
 package se.umu.chho0126.thirty.model
 
 import android.os.Parcel
+import android.os.Parcelable
 import se.umu.chho0126.thirty.Util
 import java.lang.IllegalArgumentException
 
 
-class Game() {
+class Game() : Parcelable {
     var previousRounds: ArrayList<Round> = ArrayList()
     var isGameFinished: Boolean = false
     var currentScore: Int = 0
     var roundsLeft: Int = 9
     var currentRound: Round = Round()
+
+    constructor(parcel: Parcel) : this() {
+        isGameFinished = parcel.readByte() != 0.toByte()
+        currentScore = parcel.readInt()
+        roundsLeft = parcel.readInt()
+    }
+
+    override fun writeToParcel(parcel: Parcel, flags: Int) {
+        parcel.writeByte(if (isGameFinished) 1 else 0)
+        parcel.writeInt(currentScore)
+        parcel.writeInt(roundsLeft)
+    }
+
+    override fun describeContents(): Int {
+        return 0
+    }
+
+    companion object CREATOR : Parcelable.Creator<Game> {
+        override fun createFromParcel(parcel: Parcel): Game {
+            return Game(parcel)
+        }
+
+        override fun newArray(size: Int): Array<Game?> {
+            return arrayOfNulls(size)
+        }
+    }
 
     fun getPreviousScores(): IntArray {
         return previousRounds.map {
@@ -58,7 +85,6 @@ class Game() {
         val sum = selectedDices.sumOf { it.value }
         if (selected <= 0) throw IllegalArgumentException("you must select dices!")
         if (sum % target != 0) throw IllegalArgumentException("invalid choices")
-        Util.debugLog("$sum")
         return sum
     }
 
@@ -118,10 +144,8 @@ class Game() {
     }
 
     fun throwDices() {
-        Util.debugLog("Game: $currentScore")
         currentRound.throwAllDices()
     }
-
 
 
 }

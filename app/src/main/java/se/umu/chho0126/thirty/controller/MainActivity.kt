@@ -9,6 +9,7 @@ import android.view.View
 import android.widget.*
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelProviders
 import se.umu.chho0126.thirty.databinding.ActivityMainBinding
 import se.umu.chho0126.thirty.R
@@ -22,10 +23,14 @@ class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding
     private lateinit var currentChoice: String
     private lateinit var toast: Toast
+    private lateinit var gameViewModel: GameViewModel
 
+
+    /*
     private val gameViewModel: GameViewModel by lazy {
         ViewModelProviders.of(this).get(GameViewModel::class.java)
     }
+     */
 
     private val startForResult: ActivityResultLauncher<Intent> = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
         if (it.resultCode == Activity.RESULT_OK){
@@ -41,6 +46,7 @@ class MainActivity : AppCompatActivity() {
         binding = ActivityMainBinding.inflate(layoutInflater)
         val view = binding.root
         setContentView(view)
+        gameViewModel = ViewModelProvider(this).get(GameViewModel::class.java)
 
         diceImages = listOf(
             binding.diceOne,

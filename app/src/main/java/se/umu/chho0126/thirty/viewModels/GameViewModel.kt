@@ -1,24 +1,29 @@
 package se.umu.chho0126.thirty.viewModels
 
 import android.util.Log
-import android.widget.ImageView
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.ViewModelProviders
-import se.umu.chho0126.thirty.R
 import se.umu.chho0126.thirty.Util
-import se.umu.chho0126.thirty.controller.MainActivity
 import se.umu.chho0126.thirty.model.Dice
 import se.umu.chho0126.thirty.model.Game
 
 private const val TAG = "GameViewModel"
+private const val DICES = "state_dices"
+private const val GAME = "state_game"
 
 class GameViewModel(val state: SavedStateHandle) : ViewModel() {
-    var game: Game = Game()
-    var dices: List<Dice> = game.getDices()
+    var game: Game
+    var dices: List<Dice>
+
+    init {
+        Log.d(TAG, "diceviewmodel initialized")
+        game = state.get<Game>(GAME) ?: Game()
+        dices = game.getDices()
+    }
 
     fun throwAllDices() {
         game.throwDices()
+        state.set(GAME, game)
     }
 
     fun createNewRound(choice: String) {
@@ -30,17 +35,6 @@ class GameViewModel(val state: SavedStateHandle) : ViewModel() {
     fun newGame() {
         game = Game()
         dices = game.getDices()
-        print()
-    }
-
-    private fun print() {
-        dices.forEach {
-            Util.debugLog(it.value.toString())
-        }
-
-    }
-    init {
-        Log.d(TAG, "diceviewmodel initialized")
     }
 
     override fun onCleared() {
