@@ -1,39 +1,108 @@
 package se.umu.chho0126.thirty.model
 
-import android.content.Intent
+import android.os.Parcel
 import se.umu.chho0126.thirty.Util
-import java.lang.IllegalStateException
+import java.lang.IllegalArgumentException
 
 
-class Game {
+class Game() {
+    var previousRounds: ArrayList<Round> = ArrayList()
     var isGameFinished: Boolean = false
     var currentScore: Int = 0
-    var roundsLeft: Int = 2
-    var round: Round = Round()
+    var roundsLeft: Int = 9
+    var currentRound: Round = Round()
 
-    fun newRound() {
-        round = Round()
+    fun getPreviousScores(): IntArray {
+        return previousRounds.map {
+            it.score
+        }.toIntArray()
     }
 
-    fun endRound(): Int {
-        if (roundsLeft <= 0)
+    fun newRound() {
+        currentRound = Round()
+    }
+
+    fun endRound(choice: String): Int {
+        if (roundsLeft <= 0) {
             isGameFinished = true
-        currentScore += determineScore()
+        }
+        val roundScore = determineScore(choice)
+        currentScore += roundScore
+        currentRound.score = roundScore
+        previousRounds.add(currentRound)
         roundsLeft--
         newRound()
         return currentScore
     }
 
-    private fun determineScore(): Int {
+    private fun determineScore(choice: String): Int {
         val dices = getDices()
-        return dices.sumOf { it.value }
+        return when (choice) {
+            "Low" -> scoreLow(dices)
+            "4" -> scoreNumber(dices,4)
+            "5" -> scoreNumber(dices, 5)
+            "6" -> scoreNumber(dices, 6)
+            "7" -> scoreNumber(dices, 7)
+            "8" -> scoreNumber(dices, 8)
+            "9" -> scoreNumber(dices, 9)
+            "10" -> scoreNumber(dices, 10)
+            "11" -> scoreNumber(dices, 11)
+            "12" -> scoreNumber(dices, 12)
+            else -> -1
+        }
+    }
+
+    private fun scoreNumber(dices: List<Dice>, target: Int): Int {
+        val selectedDices = dices.filter { it.isSelected }
+        val selected = selectedDices.size
+        val sum = selectedDices.sumOf { it.value }
+        if (selected <= 0) throw IllegalArgumentException("you must select dices!")
+        if (sum % target != 0) throw IllegalArgumentException("invalid choices")
+        Util.debugLog("$sum")
+        return sum
+    }
+
+
+    private fun scoreLow(dices: List<Dice>): Int {
+        return dices.filter { it.value <= 3 }.sumOf { it.value }
+    }
+
+    private fun determineScore(result: IntArray, target: Int) {
+        val subsetList = subsets(result)
+        val output = arrayListOf<ArrayList<Int>>()
+        for (subset in subsetList) {
+            var sum = 0
+            for (num in subset) {
+                sum += num
+            }
+            if (sum == target)
+                output.add(subset)
+        }
+        println(output)
+    }
+
+    private fun subsets(arr: IntArray): ArrayList<ArrayList<Int>> {
+        val output = arrayListOf<ArrayList<Int>>()
+        output.add(arrayListOf<Int>())
+        for (num in arr) {
+            val newSubset = arrayListOf<ArrayList<Int>>()
+            for (curr in output) {
+                val sub = ArrayList(curr)
+                sub.add(num)
+                newSubset.add(sub)
+            }
+            for (prev in newSubset) {
+                output.add(prev)
+            }
+        }
+        return output
     }
 
     /**
      * retrieve a reference to the running round's dices
      */
     fun getDices(): List<Dice> {
-        return round.dices
+        return currentRound.dices
     }
 
     /**
@@ -41,13 +110,18 @@ class Game {
      * @return is round finished
      */
     fun isRoundFinished(): Boolean {
-        return round.isRoundFinished()
+        return currentRound.isRoundFinished()
+    }
+
+    fun lastToss(): Boolean {
+        return currentRound.tossesRemaining <= 1
     }
 
     fun throwDices() {
         Util.debugLog("Game: $currentScore")
-        round.throwAllDices()
+        currentRound.throwAllDices()
     }
+
 
 
 }

@@ -12,7 +12,8 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.lifecycle.ViewModelProviders
 import se.umu.chho0126.thirty.databinding.ActivityMainBinding
 import se.umu.chho0126.thirty.R
-import se.umu.chho0126.thirty.viewModels.DiceViewModel
+import se.umu.chho0126.thirty.viewModels.GameViewModel
+import java.lang.IllegalArgumentException
 
 private const val TAG = "MainActivity"
 class MainActivity : AppCompatActivity() {
@@ -20,18 +21,17 @@ class MainActivity : AppCompatActivity() {
     private lateinit var diceImages: List<ImageView>
     private lateinit var binding: ActivityMainBinding
     private lateinit var currentChoice: String
+    private lateinit var toast: Toast
 
-
-    private val diceViewModel: DiceViewModel by lazy {
-        ViewModelProviders.of(this).get(DiceViewModel::class.java)
+    private val gameViewModel: GameViewModel by lazy {
+        ViewModelProviders.of(this).get(GameViewModel::class.java)
     }
 
     private val startForResult: ActivityResultLauncher<Intent> = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
         if (it.resultCode == Activity.RESULT_OK){
-            val score = it.data?.getIntExtra(ScoreActivity.EXTRA_SCORE, 0)
-            Toast.makeText(this, "you have exited the activity! The score was $score", Toast.LENGTH_SHORT).show()
+            showToast("new game started!")
         }
-        diceViewModel.newGame()
+        gameViewModel.newGame()
         updateAllViews()
         updateScore()
     }
@@ -51,42 +51,51 @@ class MainActivity : AppCompatActivity() {
             binding.diceSix,
         )
 
-        binding.resultTest.text = "${diceViewModel.game.currentScore}"
+        toast = Toast.makeText(this, "new game started!", Toast.LENGTH_SHORT)
+        binding.resultTest.text = "${gameViewModel.game.currentScore}"
 
         setupDiceImageListeners()
         setupSpinner()
 
         binding.throwButton.setOnClickListener {
-            if (!diceViewModel.game.isRoundFinished()) {
-                diceViewModel.throwAllDices()
-            } else {
-                diceViewModel.createNewRound()
-                Toast.makeText(this, R.string.new_round, Toast.LENGTH_SHORT).show()
-                updateScore()
+            if (gameViewModel.game.isGameFinished) {
+                startForResult.launch(ScoreActivity.newIntent(this, gameViewModel.game.getPreviousScores()))
             }
-            if (diceViewModel.game.isGameFinished)
-                startForResult.launch(ScoreActivity.newIntent(this, diceViewModel.game.currentScore))
+
+            if (gameViewModel.game.currentRound.tossesRemaining <= 1) {
+                binding.throwButton.isEnabled = false
+            }
+
+            gameViewModel.throwAllDices()
+
             updateAllViews()
         }
 
-        binding.calculateButton.isEnabled = false
         binding.calculateButton.setOnClickListener {
-            newRound()
+            try {
+                if (gameViewModel.game.isGameFinished) {
+                    startForResult.launch(ScoreActivity.newIntent(this, gameViewModel.game.getPreviousScores()))
+                } else {
+                    showToast("rounds remaining: ${gameViewModel.game.roundsLeft}")
+                    newRound()
+                }
+            } catch(e: IllegalArgumentException) {
+                showToast(e.message.toString())
+            }
         }
 
-/*
-        throwButton.setOnClickListener {
-            startForResult.launch(Intent(this....))
-        }
- */
+    }
+
+    private fun showToast(msg: String) {
+        toast.setText(msg)
+        toast.show()
     }
 
     private fun newRound() {
-        diceViewModel.createNewRound()
+        gameViewModel.createNewRound(currentChoice)
         updateAllViews()
         updateScore()
         binding.throwButton.isEnabled = true
-
     }
 
     private fun setupSpinner() {
@@ -107,12 +116,12 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun updateScore() {
-        binding.resultTest.text = diceViewModel.game.currentScore.toString()
+        binding.resultTest.text = gameViewModel.game.currentScore.toString()
     }
 
     private fun updateAllViews() {
         for (i in diceImages.indices) {
-            diceImages[i].setImageResource(diceViewModel.dices[i].view)
+            diceImages[i].setImageResource(gameViewModel.dices[i].view)
         }
     }
 
@@ -123,8 +132,8 @@ class MainActivity : AppCompatActivity() {
     private fun setupDiceImageListeners() {
         for (i in diceImages.indices) {
             diceImages[i].setOnClickListener {
-                diceViewModel.dices[i].toggleSelection()
-                updateView(diceImages[i], diceViewModel.dices[i].view)
+                gameViewModel.dices[i].toggleSelection()
+                updateView(diceImages[i], gameViewModel.dices[i].view)
             }
         }
         updateAllViews()

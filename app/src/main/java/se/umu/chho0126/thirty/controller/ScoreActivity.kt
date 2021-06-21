@@ -5,8 +5,10 @@ import android.content.Context
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import se.umu.chho0126.thirty.R
+import android.widget.ArrayAdapter
+import se.umu.chho0126.thirty.Util
 import se.umu.chho0126.thirty.databinding.ActivityScoreBinding
+import se.umu.chho0126.thirty.model.Game
 
 
 class ScoreActivity : AppCompatActivity() {
@@ -17,25 +19,31 @@ class ScoreActivity : AppCompatActivity() {
         val view = binding.root
         setContentView(view)
 
-        val score = intent.getIntExtra(EXTRA_SCORE, 0)
-        binding.scoreResult.text = score.toString()
+        val scores = intent.getIntArrayExtra(EXTRA_SCORE)?.toMutableList()
 
-        setIntentResult(score)
-    }
-
-    private fun setIntentResult(score: Int) {
-        val data = Intent().apply {
-            putExtra(EXTRA_SCORE, score)
+        val adapter = scores?.let {
+            ArrayAdapter(this, android.R.layout.simple_list_item_1, it.mapIndexed { index, i ->
+                "Round ${index+1}\t\t $i"
+            })
         }
-        setResult(Activity.RESULT_OK, data)
+
+        binding.scoreResult.text = scores?.sum().toString()
+        binding.scoreResults.adapter = adapter
+
+        setIntentResult(null)
     }
+
+    private fun setIntentResult(game: Game?) {
+        setResult(Activity.RESULT_OK, Intent().putExtra(EXTRA_SCORE, 0))
+    }
+
 
     companion object {
         const val EXTRA_SCORE = "se.umu.chho0126.thirty.score"
-        const val EXTRA_TEST= "se.umu.chho0126.thirty.TEST"
+        const val EXTRA_GAME = "se.umu.chho0126.thirty.game"
 
-        fun newIntent(packageContext: Context, score: Int): Intent {
-            return Intent(packageContext, ScoreActivity::class.java).apply { putExtra(EXTRA_SCORE, score) }
+        fun newIntent(packageContext: Context, game: IntArray): Intent {
+            return Intent(packageContext, ScoreActivity::class.java).apply { putExtra(EXTRA_SCORE, game) }
         }
     }
 }

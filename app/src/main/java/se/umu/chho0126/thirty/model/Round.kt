@@ -2,8 +2,8 @@ package se.umu.chho0126.thirty.model
 
 import se.umu.chho0126.thirty.Util
 
-class Round(val dices: List<Dice> = List(6) { Dice() }, var tossesRemaining: Int = 3) {
-    private var score: Int = 0
+class Round(val dices: List<Dice> = List(6) { Dice() }, var tossesRemaining: Int = 2) {
+    var score: Int = 0
 
     fun throwAllDices() {
         if (isRoundFinished())
@@ -21,7 +21,8 @@ class Round(val dices: List<Dice> = List(6) { Dice() }, var tossesRemaining: Int
     }
 
     fun isRoundFinished(): Boolean {
-        return tossesRemaining <= 1
+        return tossesRemaining <= 0
     }
+
 
 }
