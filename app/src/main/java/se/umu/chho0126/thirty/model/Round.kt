@@ -2,7 +2,7 @@ package se.umu.chho0126.thirty.model
 
 import se.umu.chho0126.thirty.Util
 
-class Round(val dices: List<Dice> = List(6) { Dice() }, var tossesRemaining: Int = 2) {
+class Round(var dices: List<Dice> = List(6) { Dice() }, var tossesRemaining: Int = 2) {
     var score: Int = 0
 
     fun throwAllDices() {
@@ -19,6 +19,7 @@ class Round(val dices: List<Dice> = List(6) { Dice() }, var tossesRemaining: Int
         Util.debugLog("round: $tossesRemaining")
         tossesRemaining--
     }
+
 
     fun isRoundFinished(): Boolean {
         return tossesRemaining <= 0

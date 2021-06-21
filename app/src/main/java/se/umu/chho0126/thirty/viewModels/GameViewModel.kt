@@ -18,12 +18,14 @@ class GameViewModel(val state: SavedStateHandle) : ViewModel() {
     init {
         Log.d(TAG, "diceviewmodel initialized")
         game = state.get<Game>(GAME) ?: Game()
-        dices = game.getDices()
+        dices = state.get<List<Dice>>(DICES) ?: game.getDices()
+        game.currentRound.dices = dices
     }
 
     fun throwAllDices() {
         game.throwDices()
         state.set(GAME, game)
+        state.set(DICES, dices)
     }
 
     fun createNewRound(choice: String) {

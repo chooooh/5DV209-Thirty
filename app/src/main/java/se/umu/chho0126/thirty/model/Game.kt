@@ -131,18 +131,6 @@ class Game() : Parcelable {
         return currentRound.dices
     }
 
-    /**
-     * check if round is finished
-     * @return is round finished
-     */
-    fun isRoundFinished(): Boolean {
-        return currentRound.isRoundFinished()
-    }
-
-    fun lastToss(): Boolean {
-        return currentRound.tossesRemaining <= 1
-    }
-
     fun throwDices() {
         currentRound.throwAllDices()
     }

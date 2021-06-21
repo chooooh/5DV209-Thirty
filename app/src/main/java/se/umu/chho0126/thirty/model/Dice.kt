@@ -1,13 +1,20 @@
 package se.umu.chho0126.thirty.model
 
+import android.os.Parcel
+import android.os.Parcelable
 import android.widget.TextView
 import se.umu.chho0126.thirty.R
 import se.umu.chho0126.thirty.controller.MainActivity
 import java.lang.IllegalArgumentException
 
-class Dice(var value: Int = IntRange(1,6).random()) {
+class Dice(var value: Int = IntRange(1,6).random()) : Parcelable {
     var view: Int
     var isSelected: Boolean
+
+    constructor(parcel: Parcel) : this(parcel.readInt()) {
+        view = parcel.readInt()
+        isSelected = parcel.readByte() != 0.toByte()
+    }
 
     init {
         isSelected = false
@@ -45,6 +52,26 @@ class Dice(var value: Int = IntRange(1,6).random()) {
                 6 -> R.drawable.white6
                 else -> throw IllegalArgumentException("Invalid dice value")
             }
+        }
+    }
+
+    override fun writeToParcel(parcel: Parcel, flags: Int) {
+        parcel.writeInt(value)
+        parcel.writeInt(view)
+        parcel.writeByte(if (isSelected) 1 else 0)
+    }
+
+    override fun describeContents(): Int {
+        return 0
+    }
+
+    companion object CREATOR : Parcelable.Creator<Dice> {
+        override fun createFromParcel(parcel: Parcel): Dice {
+            return Dice(parcel)
+        }
+
+        override fun newArray(size: Int): Array<Dice?> {
+            return arrayOfNulls(size)
         }
     }
 }
