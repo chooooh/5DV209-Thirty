@@ -2,30 +2,44 @@ package se.umu.chho0126.thirty.model
 
 import android.os.Parcel
 import android.os.Parcelable
-import android.widget.TextView
 import se.umu.chho0126.thirty.R
-import se.umu.chho0126.thirty.controller.MainActivity
 import java.lang.IllegalArgumentException
 
+/**
+ * Represents a dice. Implements the Parcelable interface.
+ */
 class Dice(var value: Int = IntRange(1,6).random()) : Parcelable {
     var view: Int
     var isSelected: Boolean
 
+    /**
+     * Required by the Parcelable interface.
+     */
     constructor(parcel: Parcel) : this(parcel.readInt()) {
         view = parcel.readInt()
         isSelected = parcel.readByte() != 0.toByte()
     }
 
+    /**
+     * Initializes properties. Dices are initially not selected.
+     */
     init {
         isSelected = false
         view = updateDiceView()
     }
 
+    /**
+     * Tosses this dice by assigning a random number and the updating the view
+     * with the corresponding value.
+     */
     fun throwDice() {
         value = IntRange(1, 6).random()
         view = updateDiceView()
     }
 
+    /**
+     * Toggles the dice selection
+     */
     fun toggleSelection() {
         isSelected = !isSelected
         view = updateDiceView()

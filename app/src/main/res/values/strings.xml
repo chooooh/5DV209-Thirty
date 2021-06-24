@@ -1,11 +1,7 @@
 <resources>
     <string name="app_name">Thirty</string>
     <string name="throw_button">Throw</string>
-    <string name="next_round">Next Round</string>
     <string name="calculate_button">Calculate</string>
-    <string name="choice_low">Low</string>
-    <string name="choice_four">Four</string>
-    <string name="new_round">New round started!</string>
     <string name="your_score">Your score: </string>
 
 </resources>

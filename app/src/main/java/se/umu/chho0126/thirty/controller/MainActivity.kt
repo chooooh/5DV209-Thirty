@@ -10,12 +10,15 @@ import android.widget.*
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.ViewModelProviders
 import se.umu.chho0126.thirty.databinding.ActivityMainBinding
 import se.umu.chho0126.thirty.R
 import se.umu.chho0126.thirty.viewModels.GameViewModel
 import java.lang.IllegalArgumentException
 
+/**
+ * Main activity class that represents the game. Has the controller role of the MVC pattern
+ * and therefore handles UI events and updates changes in both view and model.
+ */
 private const val TAG = "MainActivity"
 class MainActivity : AppCompatActivity() {
 
@@ -24,13 +27,6 @@ class MainActivity : AppCompatActivity() {
     private lateinit var currentChoice: String
     private lateinit var toast: Toast
     private lateinit var gameViewModel: GameViewModel
-
-
-    /*
-    private val gameViewModel: GameViewModel by lazy {
-        ViewModelProviders.of(this).get(GameViewModel::class.java)
-    }
-     */
 
     private val startForResult: ActivityResultLauncher<Intent> = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
         if (it.resultCode == Activity.RESULT_OK){
@@ -62,6 +58,16 @@ class MainActivity : AppCompatActivity() {
 
         setupDiceImageListeners()
         setupSpinner()
+        setupButtonListeners()
+
+    }
+
+    override fun onResume() {
+        super.onResume()
+        binding.calculateButton.isEnabled = true
+    }
+
+    private fun setupButtonListeners() {
 
         binding.throwButton.setOnClickListener {
             if (gameViewModel.game.isGameFinished) {
@@ -80,6 +86,7 @@ class MainActivity : AppCompatActivity() {
         binding.calculateButton.setOnClickListener {
             try {
                 if (gameViewModel.game.isGameFinished) {
+                    binding.calculateButton.isEnabled = false
                     startForResult.launch(ScoreActivity.newIntent(this, gameViewModel.game.getPreviousScores()))
                 } else {
                     showToast("rounds remaining: ${gameViewModel.game.roundsLeft}")
@@ -89,7 +96,6 @@ class MainActivity : AppCompatActivity() {
                 showToast(e.message.toString())
             }
         }
-
     }
 
     private fun showToast(msg: String) {

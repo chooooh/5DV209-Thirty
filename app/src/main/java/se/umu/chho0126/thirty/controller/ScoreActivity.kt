@@ -6,11 +6,14 @@ import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.widget.ArrayAdapter
-import se.umu.chho0126.thirty.Util
 import se.umu.chho0126.thirty.databinding.ActivityScoreBinding
 import se.umu.chho0126.thirty.model.Game
 
 
+/**
+ * Score activity class that represents the score screen. Retrieves the total game score and
+ * initializes relevant views.
+ */
 class ScoreActivity : AppCompatActivity() {
     private lateinit var binding: ActivityScoreBinding
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -37,13 +40,19 @@ class ScoreActivity : AppCompatActivity() {
         setResult(Activity.RESULT_OK, Intent().putExtra(EXTRA_SCORE, 0))
     }
 
-
+    /**
+     * This companion object provides a public constant and a helper function.
+     */
     companion object {
         const val EXTRA_SCORE = "se.umu.chho0126.thirty.score"
-        const val EXTRA_GAME = "se.umu.chho0126.thirty.game"
 
-        fun newIntent(packageContext: Context, game: IntArray): Intent {
-            return Intent(packageContext, ScoreActivity::class.java).apply { putExtra(EXTRA_SCORE, game) }
+        /**
+         * Instantiates and returns an intent that this score activity requires.
+         * @param packageContext the context that calls this function
+         * @param previousScores previous game round scores
+         */
+        fun newIntent(packageContext: Context, previousScores: IntArray): Intent {
+            return Intent(packageContext, ScoreActivity::class.java).apply { putExtra(EXTRA_SCORE, previousScores) }
         }
     }
 }
