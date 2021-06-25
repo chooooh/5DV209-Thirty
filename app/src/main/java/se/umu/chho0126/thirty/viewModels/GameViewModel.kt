@@ -52,6 +52,7 @@ class GameViewModel(private val state: SavedStateHandle) : ViewModel() {
     fun newGame() {
         game = Game()
         dices = game.getDices()
+        setState()
     }
 
     private fun setState() {
