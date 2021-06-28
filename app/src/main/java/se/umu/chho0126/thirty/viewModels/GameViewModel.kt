@@ -16,6 +16,7 @@ private const val GAME = "state_game"
 class GameViewModel(private val state: SavedStateHandle) : ViewModel() {
     var game: Game
     var dices: ArrayList<Dice>
+    var choices: ArrayList<String> = arrayListOf("low", "4", "5", "6", "7", "8", "9", "10", "11", "12")
 
     /**
      * Retrieve saved state if it exists, otherwise create new instances.
@@ -39,8 +40,9 @@ class GameViewModel(private val state: SavedStateHandle) : ViewModel() {
      * Creates a new round and saves state.
      * @param choice The string that determines the scoring mode selection.
      */
-    fun createNewRound(choice: String) {
-        game.endRound(choice)
+    fun createNewRound(choice: Int) {
+        game.endRound(choices[choice])
+        choices.removeAt(choice)
         game.newRound()
         dices = game.getDices()
         setState()
@@ -52,11 +54,16 @@ class GameViewModel(private val state: SavedStateHandle) : ViewModel() {
     fun newGame() {
         game = Game()
         dices = game.getDices()
+        resetChoices()
         setState()
     }
 
     private fun setState() {
         state.set(GAME, game)
         state.set(DICES, dices)
+    }
+
+    private fun resetChoices() {
+        choices = arrayListOf("low", "4", "5", "6", "7", "8", "9", "10", "11", "12")
     }
 }

@@ -76,10 +76,10 @@ class Game() : Parcelable {
         currentRound.throwAllDices()
     }
 
-    private fun determineScore(choice: String): Int {
+    fun determineScore(choice: String): Int {
         val dices = getDices()
         return when (choice) {
-            "Low" -> scoreLow(dices)
+            "low" -> scoreLow(dices)
             "4" -> scoreNumber(dices,4)
             "5" -> scoreNumber(dices, 5)
             "6" -> scoreNumber(dices, 6)
@@ -94,9 +94,9 @@ class Game() : Parcelable {
     }
 
     private fun scoreNumber(dices: List<Dice>, target: Int): Int {
-        val selectedDices = dices.filter { it.isSelected }
-        val selected = selectedDices.size
-        val sum = selectedDices.sumOf { it.value }
+        val validDices = dices.filter { it.isSelected && it.value <= target}
+        val selected = validDices.size
+        val sum = validDices.sumOf { it.value }
         if (selected <= 0) throw IllegalArgumentException("you must select dices!")
         if (sum % target != 0) throw IllegalArgumentException("invalid choices")
         return sum

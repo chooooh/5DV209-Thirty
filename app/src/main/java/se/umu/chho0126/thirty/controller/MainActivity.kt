@@ -12,6 +12,7 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.lifecycle.ViewModelProvider
 import se.umu.chho0126.thirty.databinding.ActivityMainBinding
 import se.umu.chho0126.thirty.R
+import se.umu.chho0126.thirty.model.Dice
 import se.umu.chho0126.thirty.viewModels.GameViewModel
 import java.lang.IllegalArgumentException
 
@@ -24,9 +25,10 @@ class MainActivity : AppCompatActivity() {
 
     private lateinit var diceImages: List<ImageView>
     private lateinit var binding: ActivityMainBinding
-    private lateinit var currentChoice: String
     private lateinit var toast: Toast
     private lateinit var gameViewModel: GameViewModel
+
+    private var currentChoice: Int = 0
 
     private val startForResult: ActivityResultLauncher<Intent> = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
         if (it.resultCode == Activity.RESULT_OK){
@@ -56,9 +58,12 @@ class MainActivity : AppCompatActivity() {
         toast = Toast.makeText(this, "new game started!", Toast.LENGTH_SHORT)
         binding.resultTest.text = "${gameViewModel.game.currentScore}"
 
+
         setupDiceImageListeners()
         setupSpinner()
         setupButtonListeners()
+
+
 
     }
 
@@ -68,7 +73,6 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun setupButtonListeners() {
-
         binding.throwButton.setOnClickListener {
             if (gameViewModel.game.isGameFinished) {
                 startForResult.launch(ScoreActivity.newIntent(this, gameViewModel.game.getPreviousScores()))
@@ -107,19 +111,21 @@ class MainActivity : AppCompatActivity() {
         gameViewModel.createNewRound(currentChoice)
         updateAllViews()
         updateScore()
+        setupSpinner()
         binding.throwButton.isEnabled = true
     }
 
     private fun setupSpinner() {
-        ArrayAdapter.createFromResource(this, R.array.choices_array, android.R.layout.simple_spinner_item).also {
-            it.setDropDownViewResource(android.R.layout.simple_spinner_item)
+        ArrayAdapter(this, android.R.layout.simple_spinner_item, gameViewModel.choices).also {
+            //it.setDropDownViewResource(android.R.layout.simple_spinner_item) icke nödvändig?
             binding.choicesSpinner.adapter = it
         }
 
         binding.choicesSpinner.onItemSelectedListener = object: AdapterView.OnItemSelectedListener {
             override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
                 Log.d(TAG, "${parent?.getItemAtPosition(position)}")
-                currentChoice = parent?.getItemAtPosition(position) as String
+                //currentChoice = parent?.getItemAtPosition(position) as String
+                currentChoice = position
             }
             override fun onNothingSelected(parent: AdapterView<*>?) {
                 Log.d(TAG, "Nothing selected")
