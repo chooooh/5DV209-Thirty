@@ -23,10 +23,11 @@ class ScoreActivity : AppCompatActivity() {
         setContentView(view)
 
         val scores = intent.getIntArrayExtra(EXTRA_SCORE)?.toMutableList()
+        val choices = intent.getStringArrayExtra(EXTRA_CHOICES)?.toMutableList()
 
         val adapter = scores?.let {
-            ArrayAdapter(this, android.R.layout.simple_list_item_1, it.mapIndexed { index, i ->
-                "Round ${index+1}\t\t $i"
+            ArrayAdapter(this, android.R.layout.simple_list_item_1, it.mapIndexed { index, score ->
+                "Round ${index+1} Choice - ${choices?.get(index)}, Score - $score"
             })
         }
 
@@ -45,14 +46,18 @@ class ScoreActivity : AppCompatActivity() {
      */
     companion object {
         const val EXTRA_SCORE = "se.umu.chho0126.thirty.score"
+        const val EXTRA_CHOICES = "se.umu.chho0126.thirty.choices"
 
         /**
          * Instantiates and returns an intent that this score activity requires.
          * @param packageContext the context that calls this function
          * @param previousScores previous game round scores
          */
-        fun newIntent(packageContext: Context, previousScores: IntArray): Intent {
-            return Intent(packageContext, ScoreActivity::class.java).apply { putExtra(EXTRA_SCORE, previousScores) }
+        fun newIntent(packageContext: Context, previousScores: IntArray, previousChoices: Array<String?>): Intent {
+            return Intent(packageContext, ScoreActivity::class.java).apply {
+                putExtra(EXTRA_SCORE, previousScores)
+                putExtra(EXTRA_CHOICES, previousChoices)
+            }
         }
     }
 }

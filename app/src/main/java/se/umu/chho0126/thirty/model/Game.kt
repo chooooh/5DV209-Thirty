@@ -36,6 +36,10 @@ class Game() : Parcelable {
         return previousRounds.map { it.score }.toIntArray()
     }
 
+    fun getPreviousChoices(): Array<String?> {
+        return previousRounds.map { it.choice }.toTypedArray()
+    }
+
     /**
      * Establishes a new round by instantiating and assigning a new round
      */
@@ -55,6 +59,7 @@ class Game() : Parcelable {
         val roundScore = determineScore(choice)
         currentScore += roundScore
         currentRound.score = roundScore
+        currentRound.choice = choice
         previousRounds.add(currentRound)
         roundsLeft--
         newRound()

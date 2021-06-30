@@ -9,6 +9,7 @@ import se.umu.chho0126.thirty.model.Game
 private const val TAG = "GameViewModel"
 private const val DICES = "state_dices"
 private const val GAME = "state_game"
+private const val CHOICES = "state_CHOICES"
 
 /**
  * ViewModel that persists the Game state on configuration changes and process death.
@@ -25,6 +26,7 @@ class GameViewModel(private val state: SavedStateHandle) : ViewModel() {
         Log.d(TAG, "diceviewmodel initialized")
         game = state.get<Game>(GAME) ?: Game()
         dices = state.get<ArrayList<Dice>>(DICES) ?: game.getDices()
+        choices = state.get<ArrayList<String>>(CHOICES) ?: arrayListOf("low", "4", "5", "6", "7", "8", "9", "10", "11", "12")
         game.currentRound.dices = dices
     }
 
@@ -34,6 +36,13 @@ class GameViewModel(private val state: SavedStateHandle) : ViewModel() {
     fun throwAllDices() {
         game.throwDices()
         setState()
+    }
+
+    /**
+     * Shows expected score without ending the round.
+     */
+    fun showScore(choice: Int): Int {
+        return game.determineScore(choices[choice])
     }
 
     /**
@@ -61,6 +70,7 @@ class GameViewModel(private val state: SavedStateHandle) : ViewModel() {
     private fun setState() {
         state.set(GAME, game)
         state.set(DICES, dices)
+        state.set(CHOICES, choices)
     }
 
     private fun resetChoices() {

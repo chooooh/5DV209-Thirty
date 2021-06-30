@@ -9,12 +9,14 @@ import android.os.Parcelable
  */
 class Round(var dices: ArrayList<Dice> = arrayListOf(Dice(), Dice(), Dice(), Dice(), Dice(), Dice()), var tossesRemaining: Int = 2) : Parcelable {
     var score: Int = 0
+    var choice: String? = null
 
     constructor(parcel: Parcel) : this(
         parcel.createTypedArrayList(Dice.CREATOR) as ArrayList<Dice>,
         parcel.readInt()
     ) {
         score = parcel.readInt()
+        choice = parcel.readString()
     }
 
 
@@ -43,6 +45,7 @@ class Round(var dices: ArrayList<Dice> = arrayListOf(Dice(), Dice(), Dice(), Dic
         parcel.writeTypedList(dices)
         parcel.writeInt(tossesRemaining)
         parcel.writeInt(score)
+        parcel.writeString(choice)
     }
 
     override fun describeContents(): Int {

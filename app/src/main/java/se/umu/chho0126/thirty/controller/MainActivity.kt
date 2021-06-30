@@ -11,8 +11,6 @@ import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.lifecycle.ViewModelProvider
 import se.umu.chho0126.thirty.databinding.ActivityMainBinding
-import se.umu.chho0126.thirty.R
-import se.umu.chho0126.thirty.model.Dice
 import se.umu.chho0126.thirty.viewModels.GameViewModel
 import java.lang.IllegalArgumentException
 
@@ -37,6 +35,7 @@ class MainActivity : AppCompatActivity() {
         gameViewModel.newGame()
         updateAllViews()
         updateScore()
+        setupSpinner()
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -56,15 +55,12 @@ class MainActivity : AppCompatActivity() {
         )
 
         toast = Toast.makeText(this, "new game started!", Toast.LENGTH_SHORT)
-        binding.resultTest.text = "${gameViewModel.game.currentScore}"
+        binding.result.text = "${gameViewModel.game.currentScore}"
 
 
         setupDiceImageListeners()
         setupSpinner()
         setupButtonListeners()
-
-
-
     }
 
     override fun onResume() {
@@ -75,7 +71,7 @@ class MainActivity : AppCompatActivity() {
     private fun setupButtonListeners() {
         binding.throwButton.setOnClickListener {
             if (gameViewModel.game.isGameFinished) {
-                startForResult.launch(ScoreActivity.newIntent(this, gameViewModel.game.getPreviousScores()))
+                binding.throwButton.isEnabled = false
             }
 
             if (gameViewModel.game.currentRound.tossesRemaining <= 1) {
@@ -85,13 +81,14 @@ class MainActivity : AppCompatActivity() {
             gameViewModel.throwAllDices()
 
             updateAllViews()
+            displayScore()
         }
 
         binding.calculateButton.setOnClickListener {
             try {
                 if (gameViewModel.game.isGameFinished) {
                     binding.calculateButton.isEnabled = false
-                    startForResult.launch(ScoreActivity.newIntent(this, gameViewModel.game.getPreviousScores()))
+                    startForResult.launch(ScoreActivity.newIntent(this, gameViewModel.game.getPreviousScores(), gameViewModel.game.getPreviousChoices()))
                 } else {
                     showToast("rounds remaining: ${gameViewModel.game.roundsLeft}")
                     newRound()
@@ -115,17 +112,24 @@ class MainActivity : AppCompatActivity() {
         binding.throwButton.isEnabled = true
     }
 
+    private fun displayScore() {
+        try {
+            binding.expectedScore.text = "choices give: ${gameViewModel.showScore(currentChoice)}"
+        } catch (e: IllegalArgumentException) {
+            binding.expectedScore.text = "select valid dices!"
+        }
+    }
+
     private fun setupSpinner() {
         ArrayAdapter(this, android.R.layout.simple_spinner_item, gameViewModel.choices).also {
-            //it.setDropDownViewResource(android.R.layout.simple_spinner_item) icke nödvändig?
             binding.choicesSpinner.adapter = it
         }
 
         binding.choicesSpinner.onItemSelectedListener = object: AdapterView.OnItemSelectedListener {
             override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
                 Log.d(TAG, "${parent?.getItemAtPosition(position)}")
-                //currentChoice = parent?.getItemAtPosition(position) as String
                 currentChoice = position
+                displayScore()
             }
             override fun onNothingSelected(parent: AdapterView<*>?) {
                 Log.d(TAG, "Nothing selected")
@@ -134,7 +138,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun updateScore() {
-        binding.resultTest.text = gameViewModel.game.currentScore.toString()
+        binding.result.text = gameViewModel.game.currentScore.toString()
     }
 
     private fun updateAllViews() {
@@ -152,6 +156,7 @@ class MainActivity : AppCompatActivity() {
             diceImages[i].setOnClickListener {
                 gameViewModel.dices[i].toggleSelection()
                 updateView(diceImages[i], gameViewModel.dices[i].view)
+                displayScore()
             }
         }
         updateAllViews()
