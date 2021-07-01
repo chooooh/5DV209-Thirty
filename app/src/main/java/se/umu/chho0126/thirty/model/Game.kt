@@ -101,10 +101,38 @@ class Game() : Parcelable {
     private fun scoreNumber(dices: List<Dice>, target: Int): Int {
         val validDices = dices.filter { it.isSelected && it.value <= target}
         val selected = validDices.size
+        if (selected <= 0) return 0
         val sum = validDices.sumOf { it.value }
-        if (selected <= 0) throw IllegalArgumentException("you must select dices!")
-        if (sum % target != 0) throw IllegalArgumentException("invalid choices")
+        //if (selected <= 0) throw IllegalArgumentException("you must select dices!")
+        if (sum % target != 0) throw IllegalArgumentException("sum is larger/smaller than target")
+        if (!validateCombinations(validDices, target)) throw IllegalArgumentException("none of combinations sum to $target")
         return sum
+    }
+
+    // OBS! Avslutar kontroll vid första iterationen som uppfyller summan!!!
+    private fun validateCombinations(dices: List<Dice>, target: Int): Boolean {
+        var subsets = subsets(dices.map { it.value })
+        subsets.forEach { subset ->
+            if (subset.sumOf { it } == target) return true
+        }
+        return false
+    }
+
+    private fun subsets(arr: List<Int>): ArrayList<ArrayList<Int>> {
+        val subsets = arrayListOf<ArrayList<Int>>()
+        subsets.add(arrayListOf())
+        for (num in arr) {
+            val newSubset = arrayListOf<ArrayList<Int>>()
+            for (curr in subsets) {
+                val sub = ArrayList(curr)
+                sub.add(num)
+                newSubset.add(sub)
+            }
+            for (prev in newSubset) {
+                subsets.add(prev)
+            }
+        }
+        return subsets
     }
 
     private fun scoreLow(dices: List<Dice>): Int {

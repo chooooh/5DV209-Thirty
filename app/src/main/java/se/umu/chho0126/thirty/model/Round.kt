@@ -7,7 +7,7 @@ import android.os.Parcelable
  * Represents a game Round. Implements the Parcelable interface.
  * This class track the score for the current round.
  */
-class Round(var dices: ArrayList<Dice> = arrayListOf(Dice(), Dice(), Dice(), Dice(), Dice(), Dice()), var tossesRemaining: Int = 2) : Parcelable {
+class Round(var dices: ArrayList<Dice> = arrayListOf(Dice(6), Dice(6), Dice(2), Dice(1), Dice(1), Dice(1)), var tossesRemaining: Int = 2) : Parcelable {
     var score: Int = 0
     var choice: String? = null
 

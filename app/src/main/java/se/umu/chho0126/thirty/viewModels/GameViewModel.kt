@@ -40,6 +40,7 @@ class GameViewModel(private val state: SavedStateHandle) : ViewModel() {
 
     /**
      * Shows expected score without ending the round.
+     * @param choice The number that determines the scoring mode selection
      */
     fun showScore(choice: Int): Int {
         return game.determineScore(choices[choice])
@@ -47,7 +48,7 @@ class GameViewModel(private val state: SavedStateHandle) : ViewModel() {
 
     /**
      * Creates a new round and saves state.
-     * @param choice The string that determines the scoring mode selection.
+     * @param choice The number that determines the scoring mode selection.
      */
     fun createNewRound(choice: Int) {
         game.endRound(choices[choice])

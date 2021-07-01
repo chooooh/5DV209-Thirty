@@ -36,6 +36,7 @@ class MainActivity : AppCompatActivity() {
         updateAllViews()
         updateScore()
         setupSpinner()
+        setupButtonListeners()
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -63,17 +64,11 @@ class MainActivity : AppCompatActivity() {
         setupButtonListeners()
     }
 
-    override fun onResume() {
-        super.onResume()
-        binding.calculateButton.isEnabled = true
-    }
+  private fun setupButtonListeners() {
+        Log.d("test", "${gameViewModel.game.currentRound.tossesRemaining} - ${gameViewModel.game.roundsLeft}")
+        binding.throwButton.isEnabled = gameViewModel.game.roundsLeft >= 0 && gameViewModel.game.currentRound.tossesRemaining > 0
 
-    private fun setupButtonListeners() {
         binding.throwButton.setOnClickListener {
-            if (gameViewModel.game.isGameFinished) {
-                binding.throwButton.isEnabled = false
-            }
-
             if (gameViewModel.game.currentRound.tossesRemaining <= 1) {
                 binding.throwButton.isEnabled = false
             }
@@ -109,10 +104,14 @@ class MainActivity : AppCompatActivity() {
         updateAllViews()
         updateScore()
         setupSpinner()
-        binding.throwButton.isEnabled = true
+        binding.throwButton.isEnabled = gameViewModel.game.roundsLeft >= 0
     }
 
     private fun displayScore() {
+        if (gameViewModel.game.isGameFinished) {
+            binding.expectedScore.text = "Press calculate to retrieve scores"
+            return
+        }
         try {
             binding.expectedScore.text = "choices give: ${gameViewModel.showScore(currentChoice)}"
         } catch (e: IllegalArgumentException) {
