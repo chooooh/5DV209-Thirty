@@ -65,8 +65,9 @@ class MainActivity : AppCompatActivity() {
     }
 
   private fun setupButtonListeners() {
-        Log.d("test", "${gameViewModel.game.currentRound.tossesRemaining} - ${gameViewModel.game.roundsLeft}")
+        Log.d("test", "${gameViewModel.game.isGameFinished}")
         binding.throwButton.isEnabled = gameViewModel.game.roundsLeft >= 0 && gameViewModel.game.currentRound.tossesRemaining > 0
+        binding.calculateButton.isEnabled = true
 
         binding.throwButton.setOnClickListener {
             if (gameViewModel.game.currentRound.tossesRemaining <= 1) {

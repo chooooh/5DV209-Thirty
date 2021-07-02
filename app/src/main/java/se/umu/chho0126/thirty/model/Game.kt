@@ -99,40 +99,57 @@ class Game() : Parcelable {
     }
 
     private fun scoreNumber(dices: List<Dice>, target: Int): Int {
-        val validDices = dices.filter { it.isSelected && it.value <= target}
+        val validDices = dices.filter { it.isSelected }.sortedByDescending { it.value }
         val selected = validDices.size
         if (selected <= 0) return 0
+        if (validDices.any { it.value > target}) throw IllegalArgumentException("Dice value is higher than target")
         val sum = validDices.sumOf { it.value }
-        //if (selected <= 0) throw IllegalArgumentException("you must select dices!")
+        if (selected <= 0) throw IllegalArgumentException("you must select dices!")
         if (sum % target != 0) throw IllegalArgumentException("sum is larger/smaller than target")
-        if (!validateCombinations(validDices, target)) throw IllegalArgumentException("none of combinations sum to $target")
+        if (validateCombinations(validDices, target)) throw IllegalArgumentException("none of combinations sum to $target")
         return sum
     }
 
-    // OBS! Avslutar kontroll vid första iterationen som uppfyller summan!!!
+    /**
+     * Iterate through dices and mark each combination that sums to the target. If all dices are
+     * marked (all dices have unique combinations that sum up to target, or a dice itself sums to the target),
+     * return true, otherwise return false.
+     *
+     * If sum exceeds target during inner loop, remove all elements that is supposed to
+     * get marked, and re-add the the outer loop element and current inner loop element being examined.
+     * @param dices List containing dices. MUST BE SORTED BY DESCENDING ORDER!
+     * @param target The sum combinations should sum up to
+     * @return boolean whether combinations are valid or not
+     */
     private fun validateCombinations(dices: List<Dice>, target: Int): Boolean {
-        var subsets = subsets(dices.map { it.value })
-        subsets.forEach { subset ->
-            if (subset.sumOf { it } == target) return true
+        val marked = BooleanArray(dices.size)
+        for (i in dices.indices) {
+            var sum = dices[i].value
+            var toMark = ArrayList<Int>()
+            if (sum == target || marked[i]) {
+                marked[i] = true
+                continue
+            }
+            toMark.add(i)
+            for (j in i+1 until dices.size) {
+                if (marked[j]) continue
+                sum += dices[j].value
+                toMark.add(j)
+                if (sum > target) {
+                    sum = dices[i].value + dices[j].value
+                    toMark = arrayListOf(i, j)
+                }
+                if (sum == target) {
+                    mark(toMark, marked)
+                    break
+                }
+            }
         }
-        return false
+        return marked.any { !it }
     }
 
-    private fun subsets(arr: List<Int>): ArrayList<ArrayList<Int>> {
-        val subsets = arrayListOf<ArrayList<Int>>()
-        subsets.add(arrayListOf())
-        for (num in arr) {
-            val newSubset = arrayListOf<ArrayList<Int>>()
-            for (curr in subsets) {
-                val sub = ArrayList(curr)
-                sub.add(num)
-                newSubset.add(sub)
-            }
-            for (prev in newSubset) {
-                subsets.add(prev)
-            }
-        }
-        return subsets
+    private fun mark(toMark: ArrayList<Int>, marked: BooleanArray) {
+        toMark.forEach { marked[it] = true }
     }
 
     private fun scoreLow(dices: List<Dice>): Int {
