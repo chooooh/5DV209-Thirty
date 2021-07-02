@@ -30,14 +30,12 @@ class GameTest : TestCase() {
     fun testValidDetermineScore() {
         val game = getNewGame(generateDices(1, 1, 1, 2, 4, 4))
         setTrue(intArrayOf(0, 1, 4, 5), game)
-        print(game.getDices())
         assertEquals(game.determineScore("5"), 10)
     }
 
     fun testValidDetermineScore2() {
         val game = getNewGame(generateDices(1, 1, 6, 4, 4, 6))
         setTrue(intArrayOf(3, 4), game)
-        print(game.getDices())
         assertEquals(game.determineScore("4"), 8)
     }
 

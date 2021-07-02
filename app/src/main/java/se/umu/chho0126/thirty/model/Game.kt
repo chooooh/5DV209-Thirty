@@ -81,6 +81,11 @@ class Game() : Parcelable {
         currentRound.throwAllDices()
     }
 
+    /**
+     * Calculate score based on score selection mode
+     * @param choice the score selection mode
+     * @return the score
+     */
     fun determineScore(choice: String): Int {
         val dices = getDices()
         return when (choice) {
@@ -98,6 +103,9 @@ class Game() : Parcelable {
         }
     }
 
+    /**
+     * Perform required validation checks
+     */
     private fun scoreNumber(dices: List<Dice>, target: Int): Int {
         val validDices = dices.filter { it.isSelected }.sortedByDescending { it.value }
         val selected = validDices.size
